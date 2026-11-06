@@ -62,12 +62,14 @@ Rule of thumb: **sibling columns → column grid; one column derived from the ot
 | `references/latex.md` | Embedded Files contract, `\color`, sizing, the three rendering variants tested, failure signatures |
 | `references/theme-and-color.md` | Why canvases open white, `matchThemeAlways`, palette extraction, this vault's established colors |
 | `references/layout.md` | Column/row geometry, formula sizing heuristics, what makes a canvas look unfinished |
+| `references/script-engine.md` | 插件内的 JS 脚本引擎：脚本放哪、能干什么、`ExcalidrawAutomate` API、能不能做表格、与文件级生成的取舍 |
 | `references/design-metrics.md` | Quantified aesthetics: container ratio, font-level count, formula variance, whitespace, semantic color; two layout schools; how to validate without a renderer |
 | `references/troubleshooting.md` | Symptom → cause → fix table for every failure seen so far |
 | `scripts/gen_canvas.mjs` | Config-driven canvas generator (text, latex, rect, hline, arrow) |
 | `scripts/inspect_canvas.mjs` | Decompress + audit: theme, counts, equation/image match, bindings, fonts, aesthetic metrics. `--describe` prints a compact id/position/label/connection inventory; `--dump` prints raw scene JSON |
 | `scripts/render_preview.mjs` | Headless PNG preview via `mcp-excalidraw-server render` (no browser). LaTeX renders blank — layout only |
 | `evals/evals.json` | Regression prompts: one per failure mode that has actually happened |
+| `examples/ea-table.md` | A runnable in-app script that builds a table out of rectangles + text |
 
 ## Editing an existing canvas
 

@@ -97,12 +97,14 @@ references/
   layout.md                  geometry, spacing numbers, layout anti-patterns
   design-metrics.md          quantified aesthetics + how to validate without a renderer
   troubleshooting.md         symptom → cause → fix, all observed in the wild
+  script-engine.md           the plugin's JS script engine and when to use it
   when-not-to-use.md         .excalidraw vs .excalidraw.md vs .canvas
 scripts/
   gen_canvas.mjs             config-driven generator (stable ids, safe write)
   inspect_canvas.mjs         decompress + audit + --describe / --dump
   render_preview.mjs         headless PNG preview
 evals/evals.json             regression prompts
+examples/ea-table.md         in-app script that builds a table
 ```
 
 ## Known limitations
@@ -207,7 +209,7 @@ node scripts/inspect_canvas.mjs note.excalidraw.md --dump      # 原始场景 JS
 
 ```
 SKILL.md                     入口：铁律、工作流、两种版式
-references/                  格式 / 元素 / 公式 / 主题 / 版式 / 指标 / 排障 / 边界
+references/                  格式 / 元素 / 公式 / 主题 / 版式 / 指标 / 脚本引擎 / 排障 / 边界
 scripts/                     生成器、审计器、无头预览
 evals/evals.json             回归用例
 ```
