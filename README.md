@@ -10,6 +10,18 @@ An agent skill for writing **`.excalidraw.md`** canvases that actually open corr
 
 Most Excalidraw tooling assumes the web app's plain `.excalidraw` JSON. Obsidian uses a different container: a Markdown file with a compressed-or-plain drawing block, and formulas that live in a separate `## Embedded Files` section. Getting that wrong produces broken images, literal `$` signs, or a canvas that duplicates itself every time you regenerate it. This skill encodes the working contract, plus a set of measurable layout rules so the result looks finished rather than assembled.
 
+### Why LaTeX is the part that breaks
+
+Three ways a formula fails in this container — all three happened before the rule was written down:
+
+| What you see | What actually happened |
+| --- | --- |
+| A blank box; clicking it says *"select an element with an internal or external link"* | An `image` element with no matching line in `## Embedded Files` |
+| `$A=\int…$` printed with visible dollar signs | The TeX was wrapped twice: `fileId: $$$…$$$` — MathJax prints `$` as an ordinary character |
+| `A=\int…` sitting in the canvas as plain text | The maths was written into a `text` element; this plugin only renders equations from Embedded Files |
+
+The whole contract is one sentence: **the formula is an `image` element, its TeX is a single `<40-hex-id>: $$tex$$` line in `## Embedded Files`, the id must match, and `$$` goes on exactly once.**
+
 ---
 
 ## What makes it different
@@ -119,6 +131,18 @@ Issues and pull requests are welcome. If you hit a rendering or layout failure t
 一个用于生成 **`.excalidraw.md`** 画布的 Agent 技能，目标是让文件在 Obsidian Excalidraw 插件里**打开就是对的**——包括公式。
 
 市面上的 Excalidraw 工具大多面向网页版的 `.excalidraw` JSON。Obsidian 用的是另一套容器：Markdown 文件里放一段（可压缩的）绘图块，公式则单独存在 `## Embedded Files` 段。这里错一步，结果就是断图、公式两边多出 `$`，或者每次重新生成画布就叠一层。本技能把可用的事实固化下来，并给出一组**可度量**的版式规则，让成品看起来是做完的，而不是拼起来的。
+
+### 公式为什么最容易坏
+
+在这个容器里，公式有三种坏法，都是在把规则写下来之前真踩过的：
+
+| 你看到的 | 实际发生了什么 |
+| --- | --- |
+| 一个空白框，点它提示"请选择一个包含内部或外部链接的元素" | `image` 元素在 `## Embedded Files` 里找不到对应行 |
+| `$A=\int…$` 两边带着美元符号 | TeX 被包了两层：`fileId: $$$…$$$`，MathJax 把 `$` 当普通字符印出来 |
+| `A=\int…` 以纯文本形式躺在画布上 | 公式被写进了 `text` 元素；这个插件只渲染 Embedded Files 里的公式 |
+
+整条链路一句话：**公式是 `image` 元素，TeX 是 `## Embedded Files` 里唯一的一行 `<40 位 id>: $$tex$$`，id 必须对齐，`$$` 只能加一次。**
 
 ### 它和别的做法有什么不同
 
