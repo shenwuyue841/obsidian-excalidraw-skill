@@ -88,7 +88,7 @@ Rule of thumb: **a table that will be edited by hand → script; a table that is
 
 ### The side-panel pattern (worth copying)
 
-`examples/ea-table-sidepanel.md` (ExcaliTable) is a compact reference for any script that needs a persistent UI:
+`examples/ea-table-sidepanel.md` (ExcaliTable) is a compact reference for any script that needs a persistent UI. It covers the three pieces that make such a tool feel finished: `$…$` cells rendered through `ea.addLaTex`, a global + per-column alignment override, and a one-click reset of every style parameter back to `DEFAULTS`.
 
 ```js
 const tab = await ea.createSidepanelTab("ExcaliTable", true, true); // persist, reveal
@@ -100,6 +100,8 @@ ea.onSceneChangeHook = { appStateKeys: ["selectedElementIds"], callback }
 Live preview without touching the canvas: build the elements into the EA workbench (`ea.clear()` → `ea.add*()`), export them with `ea.createSVG(...)`, then `ea.clear()` again. The canvas is never modified until `ea.addElementsToView()`.
 
 Round-trip: stamp `element.customData.excaliTable = { src, style }` on every generated element and group them; when the user selects one, read that back into the panel and offer *update in place*. That is how a script becomes a tool instead of a one-shot command.
+
+Mixed content inside one cell (text + formula) is a **run**: split the cell into segments, create each segment, then re-position them left-to-right once you know their real widths — `ea.addLaTex` and `ea.addText` both return an id, and `ea.getElement(id)` gives you `width`/`height` *after* creation. Do not guess formula widths; measure them.
 
 Note: its UI strings are Chinese — the pattern is what to borrow.
 
