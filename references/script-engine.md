@@ -80,11 +80,28 @@ A script is therefore just: read state → `ea.add*()` a few times → `ea.addEl
 
 There is **no native table element** in Excalidraw — no HTML-like table, and no merged cells. Three ways to get one:
 
-1. **Grid of rectangles + text** (what everyone does): one `addRect` per cell or per row, one `addText` per cell, optional `addLine` for the grid. This is what the sample in `examples/ea-table.md` does. Works, looks right, and every cell stays individually editable.
+1. **Grid of rectangles + text** (what everyone does): one `addRect` per row for fills, `addLine` for the grid, one `addText` per cell. `examples/ea-table-sidepanel.md` does exactly this behind a live-preview side panel; `examples/ea-table.md` is the minimal one-shot version.
 2. **A script that reads a Markdown/CSV table from the vault** and lays it out — same grid, data from outside. Good when the table already exists as text.
 3. **Generate it offline** with this skill's generator and write it straight into `.excalidraw.md`. Best when the table is part of a larger board and you want exact coordinates, reproducible output, and LaTeX cells.
 
 Rule of thumb: **a table that will be edited by hand → script; a table that is a snapshot of data → generate the file.**
+
+### The side-panel pattern (worth copying)
+
+`examples/ea-table-sidepanel.md` (ExcaliTable) is a compact reference for any script that needs a persistent UI:
+
+```js
+const tab = await ea.createSidepanelTab("ExcaliTable", true, true); // persist, reveal
+tab.contentEl            // your DOM root
+tab.onOpen / onFocus / onClose
+ea.onSceneChangeHook = { appStateKeys: ["selectedElementIds"], callback }
+```
+
+Live preview without touching the canvas: build the elements into the EA workbench (`ea.clear()` → `ea.add*()`), export them with `ea.createSVG(...)`, then `ea.clear()` again. The canvas is never modified until `ea.addElementsToView()`.
+
+Round-trip: stamp `element.customData.excaliTable = { src, style }` on every generated element and group them; when the user selects one, read that back into the panel and offer *update in place*. That is how a script becomes a tool instead of a one-shot command.
+
+Note: its UI strings are Chinese — the pattern is what to borrow.
 
 ## Limits worth knowing
 

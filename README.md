@@ -104,7 +104,8 @@ scripts/
   inspect_canvas.mjs         decompress + audit + --describe / --dump
   render_preview.mjs         headless PNG preview
 evals/evals.json             regression prompts
-examples/ea-table.md         in-app script that builds a table
+examples/ea-table.md         minimal in-app script that builds a table
+examples/ea-table-sidepanel.md  Markdown↔canvas table with live preview (side-panel pattern)
 ```
 
 ## Known limitations
