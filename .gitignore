@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# build artifacts
+*.zip
+dist/
+
+# previews and scratch output
+*.png
+*.svg
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

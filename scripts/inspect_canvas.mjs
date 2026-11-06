@@ -135,6 +135,34 @@ if (process.argv.includes('--dump')) {
 	process.exit(0);
 }
 
+// --describe: compact, human/AI-readable inventory — what is on this canvas,
+// where, and what connects to what. Meant to be read before editing, so you
+// address elements by id instead of by coordinates.
+if (process.argv.includes('--describe')) {
+	const els = (scene.elements || []).filter((e) => !e.isDeleted);
+	const byId = new Map(els.map((e) => [e.id, e]));
+	console.log(`# ${file}`);
+	console.log(`# theme=${scene.appState?.theme} bg=${scene.appState?.viewBackgroundColor} elements=${els.length}`);
+	const textOf = (e) => (e.text || e.label?.text || '').replace(/\n/g, ' ⏎ ');
+	for (const e of els) {
+		const pos = `${Math.round(e.x)},${Math.round(e.y)} ${Math.round(e.width || 0)}x${Math.round(e.height || 0)}`;
+		if (e.type === 'text') {
+			console.log(`text   ${e.id}  @${pos}  "${textOf(e).slice(0, 60)}"`);
+		} else if (e.type === 'image') {
+			const tex = e.customData?.latex ? ` latex: ${String(e.customData.latex).slice(0, 60)}` : '';
+			console.log(`image  ${e.id}  @${pos}${tex}`);
+		} else if (e.type === 'arrow' || e.type === 'line') {
+			const a = e.startBinding ? byId.get(e.startBinding.elementId)?.id ?? e.startBinding.elementId : '·';
+			const b = e.endBinding ? byId.get(e.endBinding.elementId)?.id ?? e.endBinding.elementId : '·';
+			const pts = (e.points || []).length;
+			console.log(`${e.type.padEnd(6)} ${e.id}  @${pos}  ${a} → ${b}  points=${pts}`);
+		} else {
+			console.log(`${e.type.padEnd(6)} ${e.id}  @${pos}  fill=${e.backgroundColor}${e.text ? `  "${textOf(e).slice(0, 40)}"` : ''}`);
+		}
+	}
+	process.exit(0);
+}
+
 // ---------------------------------------------------------------- audit
 const issues = [];
 const el = scene.elements || [];

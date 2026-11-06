@@ -77,3 +77,40 @@ Dashed rules (`strokeStyle: "dashed"`, light grey) separate sections without add
 - Five columns × four rows of formulas is about the maximum that stays readable at 100 % zoom on a laptop.
 - If the source material has 30 items, split into two canvases (e.g. "公式表" and "决策路径") rather than one 3000 px tall board.
 - Leave 40 px padding around the content; the dark-background trick requires knowing the content bounds (`maxX`, `maxY`).
+
+## Numbers that come from another implementation (mcp_excalidraw)
+
+Borrowed from a production Excalidraw-MCP server, then checked against this vault:
+
+| Quantity | Value | Note |
+| --- | --- | --- |
+| Shape min size | 160 × 60 (120 × 60 for short labels) | below this, bound labels clip |
+| Shape width | `max(160, labelChars × 12)` | 12 px per character is calibrated for 16 px body text |
+| Vertical gap between tiers | 80–120 | more when arrows must pass between tiers |
+| Horizontal gap between siblings | 40–60 | 120+ when the arrow carries a label |
+| Grid | align to 20 px | our numbers 60 / 196 / 306 / 402 are all multiples of 20 — keep it that way |
+| Body / title font | ≥ 16 / ≥ 20 | formula blocks count as body |
+| Zone padding | 50 around contained elements | |
+
+## Anti-pattern: text bound to a big background zone
+
+Putting `text` on a large rectangle (a "zone" or "panel") makes Excalidraw create a **bound text element centred in the middle of that rectangle** — right on top of every element you then place inside it. It cannot be moved independently.
+
+**Fix:** keep the rectangle empty and put a separate free-floating text at its top-left corner (`x + 20, y + 16`). This is the same reason `references/design-metrics.md` pushes containers to ≤ 30 %: bound text is the mechanism by which boxes fight the content.
+
+## Anti-pattern: cross-zone arrows
+
+An arrow from a box in one zone to a box in a distant zone draws a long diagonal through everything between. Rules:
+
+- keep arrows inside a zone or between adjacent tiers;
+- to express a cross-zone relationship, put the zones edge-to-edge at that point, or use an annotation instead of a line;
+- if a line must cross, give it waypoints (see `references/element-schema.md` → arrow routing) so it travels the perimeter.
+
+## After the plugin saves the file
+
+Once the note is opened and saved by the Obsidian plugin, two things change and they affect previews:
+
+1. `## Drawing` becomes `compressed-json`, and
+2. `## Text Elements` is filled with `<text> ^<id>` lines, and **text element ids are re-issued** by the plugin.
+
+Consequence: render a preview from the **freshly generated** file, not from a copy the plugin has touched — the renderer draws the `## Text Elements` block as body text and it appears as a stray grey column on the right of the image.

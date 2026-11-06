@@ -1,0 +1,36 @@
+{
+  "skill_name": "obsidian-excalidraw",
+  "notes": "Regression prompts. Run by generating into a scratch vault note, then checking with scripts/inspect_canvas.mjs and scripts/render_preview.mjs. A run passes only if the structural audit prints 'no structural issues' AND no aesthetic warnings fire.",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "在 Obsidian 库里新建一张画布，放 4 条 LaTeX 公式（面积、体积、弧长、侧面积各一条），一条一列。要求公式在 Obsidian 里能正常渲染，不要出现断图。",
+      "expected_output": "`.excalidraw.md` with 4 image elements and exactly 4 matching lines in `## Embedded Files`; `inspect_canvas.mjs` reports equations == images, no missing/orphan, and no `$$$`; TeX stored bare (`A=\\int…`), delimiters added only once.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "把刚才那张画布的列宽从 260 改成 300，其他不动，重新生成一次。这时画布可能正在 Obsidian 里打开着。",
+      "expected_output": "Element count stays the same as the first generation (no doubling); ids of lines/shapes/images unchanged because they are content-derived; the generator deletes the file before writing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "库里有一张画布打开是白花花一片，几乎看不到字。修好它，颜色要和库里《背诵.excalidraw》一致。",
+      "expected_output": "Diagnosed as light-on-light (not a layout bug): inspect reports white background with light ink. Colors copied from the existing canvas (theme dark + #ffffff paper + #1e1e1e ink, or its actual palette), not invented. Re-render preview confirms text is visible.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "按 08 讲的公式表做一张大观画布：4 列公式 + 底部易错提示，公式全部用 LaTeX，整体要和库里其他画布风格一致。",
+      "expected_output": "Column grid or structure layout with ≤ 4 font sizes, ≤ 30% bound-text ratio, formula heights identical, zero unintended overlap, no `$$$`; preview PNG rendered and inspected before delivery.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "这张画布是插件保存过的（Drawing 是压缩的），我只想把第 2 列的标题文字改一下、并把一列整体右移 40px，不要重画整张。",
+      "expected_output": "Uses `inspect_canvas.mjs --describe` to locate the elements by id (decompressing the compressed-json first), patches those elements only, and leaves the rest of the scene byte-stable. Does not regenerate the whole canvas.",
+      "files": []
+    }
+  ]
+}

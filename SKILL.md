@@ -2,6 +2,8 @@
 name: obsidian-excalidraw
 description: Generate and edit Obsidian Excalidraw drawings stored as Markdown (.excalidraw.md) — knowledge maps, decision trees, formula boards, teaching canvases. This skill should be used when a request involves creating or fixing an Excalidraw canvas inside an Obsidian vault, especially when it contains LaTeX formulas, needs theme/color alignment with existing notes, or when a previously generated canvas renders blank/washed-out/broken.
 agent_created: true
+license: MIT
+version: 1.0.0
 ---
 
 # Obsidian Excalidraw Canvas Builder
@@ -28,7 +30,8 @@ Do NOT use for standalone `.excalidraw` JSON handed to the web app, or for rende
 7. **Verify before claiming success.** Run the inspect script and check: equation count equals image count, no dangling bindings, theme/background as intended.
 8. **"Looks good" is measurable.** Container ratio ≤ 30%, ≤ 4 font sizes, formula height variance 0, overlap count 0. `scripts/inspect_canvas.mjs` now prints these as `aesthetic warnings`; treat any warning as a defect, not a preference. See `references/design-metrics.md`.
 9. **Write once, with stable ids, by deleting first.** Element ids must be derived from content (hash of the text / TeX / label), never random. And unlink the target file before writing it. Without both, regenerating a canvas that is currently **open in Obsidian** merges the new elements into the live scene: everything doubles, and the plugin autosaves the doubled scene back to disk. See `references/troubleshooting.md` → "Elements double / triple".
-10. **One `$$` layer only.** TeX in the data model is bare (`A=\int…`); the delimiters are added only when emitting the `## Embedded Files` line. Any `$$$` in a generated file is a double-wrap bug that renders literal dollar signs.
+10. **Render before you deliver.** `scripts/render_preview.mjs` rasterises the file headlessly (Node, no browser). Look at the PNG — JSON audits catch structure, only pixels catch "the spacing looks wrong". LaTeX comes out blank in that preview (MathJax lives in the Obsidian plugin, not the renderer), so judge layout there and formula correctness from `## Embedded Files`.
+11. **One `$$` layer only.** TeX in the data model is bare (`A=\int…`); the delimiters are added only when emitting the `## Embedded Files` line. Any `$$$` in a generated file is a double-wrap bug that renders literal dollar signs.
 
 ## Two layout schools — pick one before drawing
 
@@ -47,7 +50,7 @@ Rule of thumb: **sibling columns → column grid; one column derived from the ot
 1. **Read the target vault conventions.** Find an existing `.excalidraw.md` the user likes, run `node scripts/inspect_canvas.mjs <file>` and note: theme, `viewBackgroundColor`, dominant stroke colors, `fontFamily`, `roughness`, typical font sizes.
 2. **Design the content as columns or rows** (see `references/layout.md`) — one column per quantity/step family, one row per formula, and only group things that are actually the same quantity. Choose the layout school (column grid vs structure lines) per the table above.
 3. **Write a generator script** modeled on `scripts/gen_canvas.mjs`: edit its `CONFIG` block (title, columns, rows) and run it. Do not hand-edit the 30 kB JSON. Keep the two safety mechanisms it ships with: content-derived ids, and `rmSync` before `writeFileSync`.
-4. **Inspect the result** with `scripts/inspect_canvas.mjs`, fix counts/colors/bindings. Also assert no `$$$` in the file and that the element count equals what the generator printed (a multiple of it means the merge bug hit).
+4. **Inspect the result** with `scripts/inspect_canvas.mjs`, fix counts/colors/bindings. Also assert no `$$$` in the file and that the element count equals what the generator printed (a multiple of it means the merge bug hit). Then **render it** with `scripts/render_preview.mjs` and actually look at the PNG; fix spacing/overlap/short lines before reporting back.
 5. **Report** what the user must do in Obsidian (close and reopen the file, or use the "Decompress current Excalidraw file" command) — the plugin only re-reads a file when it is reopened.
 
 ## Reference map
@@ -62,7 +65,9 @@ Rule of thumb: **sibling columns → column grid; one column derived from the ot
 | `references/design-metrics.md` | Quantified aesthetics: container ratio, font-level count, formula variance, whitespace, semantic color; two layout schools; how to validate without a renderer |
 | `references/troubleshooting.md` | Symptom → cause → fix table for every failure seen so far |
 | `scripts/gen_canvas.mjs` | Config-driven canvas generator (text, latex, rect, hline, arrow) |
-| `scripts/inspect_canvas.mjs` | Decompress + audit: theme, counts, equation/image match, bindings, fonts |
+| `scripts/inspect_canvas.mjs` | Decompress + audit: theme, counts, equation/image match, bindings, fonts, aesthetic metrics. `--describe` prints a compact id/position/label/connection inventory; `--dump` prints raw scene JSON |
+| `scripts/render_preview.mjs` | Headless PNG preview via `mcp-excalidraw-server render` (no browser). LaTeX renders blank — layout only |
+| `evals/evals.json` | Regression prompts: one per failure mode that has actually happened |
 
 ## Editing an existing canvas
 

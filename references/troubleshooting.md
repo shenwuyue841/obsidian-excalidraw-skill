@@ -99,6 +99,8 @@ With content ids, a regeneration that only moves things around is idempotent: sa
 
 **If the file is already doubled:** regenerate once with the fixed script (it deletes first), or delete the note in Obsidian and let the generator recreate it. Editing the JSON by hand is not worth it — the plugin will merge your edits back in.
 
+**Caveat found later:** the plugin **re-issues ids for text elements** when it saves (they must match the `## Text Elements` block-reference index). So content-derived ids keep lines/shapes/rects/images stable but cannot protect text. That makes fix #1 (delete before write) the load-bearing one; keep fix #2 anyway, because it makes diffs readable and prevents the *equation* fileIds from drifting.
+
 **Prevention:** closing the note in Obsidian before regenerating removes the race entirely, but the two fixes above make that unnecessary.
 
 ## Formulas render with literal `$` on both sides

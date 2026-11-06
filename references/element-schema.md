@@ -175,3 +175,36 @@ Source of truth: `packages/element/src/types.ts` + `packages/common/src/constant
 **Text alignment**: `textAlign` is `left | center | right`; `verticalAlign` is `top | middle` only — there is no `bottom`.
 
 **Stroke styles**: `solid | dashed | dotted`. Dashed is the conventional signal for "derived / pending", keep that meaning consistent inside one canvas.
+
+## Arrow routing (curves and elbows)
+
+Straight arrows cross whatever sits between their endpoints. Two supported routings:
+
+**Curved** — 3+ points plus `roundness: {type: 2}` (proportional radius); the middle point acts as a control point:
+
+```js
+{
+  type: "arrow", x: 100, y: 100,
+  points: [[0, 0], [50, -40], [200, 0]],   // waypoint lifts the line over an obstacle
+  roundness: { type: 2 }
+}
+```
+
+**Elbowed** — right-angle routing; Excalidraw computes the corners itself:
+
+```js
+{ type: "arrow", x: 100, y: 100, points: [[0, 0], [200, 0]], elbowed: true }
+```
+
+Use curved for fan-out from one node (spread the waypoints so the arcs don't overlap), elbowed for lane-to-lane hops. Rule: **if the line would pass through an unrelated element, it needs a waypoint** — never let it cut through a box.
+
+When arrows are bound (`startBinding` / `endBinding`), moving or resizing an endpoint re-routes them automatically; you only need to re-issue the `points` if you want to change the *shape* of the route.
+
+## Editing an existing canvas without regenerating it
+
+Regenerating from the generator is the default. When the user has made manual edits worth keeping, prefer a scoped patch over a rewrite:
+
+1. `inspect_canvas.mjs --describe <file>` → ids, positions, labels, connections.
+2. Address elements **by id**, never by coordinates (they shift).
+3. Apply `{ set: {...} }` style changes (move / resize / recolor / retext), then re-inspect.
+4. Only then decide whether a full regeneration is still worth it — a rewrite throws away the user's manual work *and* re-triggers the merge-on-open behaviour.
