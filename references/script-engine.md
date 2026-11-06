@@ -47,7 +47,9 @@ Roughly four buckets, all seen in the official library (`zsviczian/obsidian-exca
 Two of these matter for formula boards specifically:
 
 - **`Reset LaTeX Size`** — resets embedded LaTeX to its default size. This is the sanctioned fix for the "the plugin wrote my formula back at a weird scale" problem; our generators size formula boxes heuristically, and this script normalises them after the fact.
-- **`ExcaliMath`** — turns selected text into Excalidraw LaTeX elements, i.e. it does the `image` + Embedded Files dance for you.
+- **`ExcaliMath`** — a **side panel** (not a one-shot command): CodeMirror LaTeX editor with live SVG preview, a graph tab that plots `f(x)` / polynomial / Gaussian / Poisson as **native `line` elements** (editable points, no raster), and a saved-formula library. Select an existing LaTeX image and it switches to update-in-place mode. Requires the Extras MathJax feature and plugin ≥ 2.25.3; it opens via `ea.createSidepanelTab()`, which is the pattern for any script that needs a persistent UI.
+
+Note on wording: earlier drafts described ExcaliMath as "text → LaTeX". That is a different, much simpler script. ExcaliMath is the full editor panel above.
 
 ## The script API, briefly
 
